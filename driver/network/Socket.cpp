@@ -17,8 +17,8 @@ bool Socket::Bind(const string &address, const uint16_t &port)
 {
 	// necessary variables
 	struct in_addr _addr;
-	uint16_t _port;
-	int _fd;
+//	uint16_t _port;
+//	int _fd;
 
 	/* If socket descriptor is valid, do nothing */
 	if (fd > 0) {
@@ -39,14 +39,14 @@ bool Socket::Bind(const string &address, const uint16_t &port)
 		return false;
 	}
 	else {
-		_port = port;
+//		_port = port;
 	}
 
 	/*
 	 * socket initialize
 	 * socket returns 0 on success
 	 */
-	if ((_fd = socket(AF_INET, SOCK_STREAM, 0)) <= 0) {
+	if ((/*_*/fd = socket(AF_INET, SOCK_STREAM, 0)) <= 0) {
 		return false;
 	}
 
@@ -54,17 +54,18 @@ bool Socket::Bind(const string &address, const uint16_t &port)
 	sockaddr_in completeAddr;
 	completeAddr.sin_family = AF_INET;
 	completeAddr.sin_addr = _addr;
-	completeAddr.sin_port = htons(_port);	// htons declared in <arpa/inet.h>
+	completeAddr.sin_port = htons(/*_*/port);	// htons declared in <arpa/inet.h>
 
 	/*
 	 * bind a socket to given address and port
 	 * bind returns 0 on success
 	 */
-	if (bind(_fd, (struct sockaddr *)&completeAddr, sizeof(completeAddr)) != 0) {
+	if (bind(/*_*/fd, (struct sockaddr *)&completeAddr, sizeof(completeAddr)) != 0) {
+		Close();
 		return false;
 	}
 
-	fd = _fd;
+	fd = /*_*/fd;
 
 	return true;
 }
@@ -73,13 +74,12 @@ bool Socket::Connect(const string &peerAddr, const uint16_t &peerPort)
 {
 	in_addr serverAddr;
 	sockaddr_in server;
-	int _fd = fd;
 
 	/* generate a socket descriptor if needed */
-	if (_fd < 0) {
-		_fd = socket(AF_INET, SOCK_STREAM, 0);
+	if (fd < 0) {
+		fd = socket(AF_INET, SOCK_STREAM, 0);
 	}
-	if (_fd < 0) {
+	if (fd < 0) {
 		return false;
 	}
 
@@ -100,11 +100,9 @@ bool Socket::Connect(const string &peerAddr, const uint16_t &peerPort)
 	server.sin_port = htons(peerPort);
 
 	/* connect to server */
-	if (connect(_fd, (struct sockaddr*)&server, sizeof(server)) < 0) {
+	if (connect(fd, (struct sockaddr*)&server, sizeof(server)) < 0) {
 		return false;
 	}
-
-	fd = _fd;
 
 	return true;
 }
@@ -310,18 +308,26 @@ int32_t Socket::Write(const void *buffer, int32_t length) const
 bool Socket::Close()
 {
 	/* Close valid socket descriptor */
-	if (fd < 0) {
-		return true;
+	if (fd > 0) {
+		// clean any errors
+		int err = 1;
+		socklen_t len = sizeof(err);
+		if (getsockopt(fd, SOL_SOCKET, SO_ERROR, (char*)&err, &len) == -1) {
+			std::cerr << "get SO_ERROR fail" << std::endl;
+		}
+		if (err)
+			errno = err;
+		
+		// secondly, terminate the 'reliable' delivery
+		if (shutdown(fd, SHUT_RDWR) < 0) {
+			if (errno != ENOTCONN && errno != EINVAL)
+				std::cerr << "socket shutdown fail" << std::endl;
+		}
+		if (close(fd) < 0) {
+			std::cerr << "close socket fail" << std::endl;	
+		}
 	}
-
-	if (shutdown(fd, SHUT_RDWR) != 0) {
-		return false;
-	}
-
-	if (close(fd) != 0) {
-		return false;
-	}
-
+	
 	fd = -1;
 
 	return true;

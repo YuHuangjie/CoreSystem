@@ -12,8 +12,8 @@ typedef struct PWMData
 	float Pitch;
 	float Yaw;
 	float EnableVision;
-	float _n2;
-	float _n3;
+	float Mode;
+	float Home;
 	float _n4;
 } PWMData;
 	

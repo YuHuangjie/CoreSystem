@@ -39,7 +39,13 @@ string ClassicIMUMsg::Pack(void) const
 		<< data.vel.vx	   << " " << data.vel.vy     << " " << data.vel.vz      << " "
 		<< data.angVel.wx  << " " << data.angVel.wy  << " " << data.angVel.wz   << " "
 		<< data.atti.roll  << " " << data.atti.yaw   << " " << data.atti.pitch  << " "
-		<< data.mag.mx     << " " << data.mag.my     << " " << data.mag.mz;
+		<< data.mag.mx     << " " << data.mag.my     << " " << data.mag.mz		<< " "
+		<< static_cast<int32_t>(data.bat.battery) << " " 
+//		<< data.gps.date	<< " " << data.gps.time  << " " 
+		<< data.gps.longitude << " " << data.gps.latitude << " " 
+		<< data.gps.altitude << " " << data.gps.height << " "
+//		<< data.gps.vel_N  << " " << data.gps.vel_E	 << " " << data.gps.vel_D   << " "
+		<< static_cast<int32_t>(data.gps.health);
 	return oss.str();
 }
 
@@ -49,11 +55,20 @@ bool ClassicIMUMsg::Unpack(string &raw)
 		return false;
 	
 	istringstream iss(raw);
+	int32_t batteryTemp, healthTemp;
 	iss >> data.accel.ax   >> data.accel.ay   >> data.accel.az
 		>> data.vel.vx     >> data.vel.vy     >> data.vel.vz
 		>> data.angVel.wx  >> data.angVel.wy  >> data.angVel.wz
 		>> data.atti.roll  >> data.atti.yaw   >> data.atti.pitch
-		>> data.mag.mx     >> data.mag.my     >> data.mag.mz;
+		>> data.mag.mx     >> data.mag.my     >> data.mag.mz
+		>> batteryTemp
+//		>> data.gps.date   >> data.gps.time   
+		>> data.gps.longitude >> data.gps.latitude 
+		>> data.gps.altitude >> data.gps.height
+//		>> data.gps.vel_N	 >> data.gps.vel_E	  >> data.gps.vel_D
+		>> healthTemp;
+	data.bat.battery = batteryTemp;
+	data.gps.health = healthTemp;
 	return true;
 }
 	
@@ -72,8 +87,8 @@ string ClassicPWMMsg::Pack(void) const
 	ostringstream oss;
 	oss << data.Throttle << " " << data.Roll << " "
 		<< data.Pitch << " " << data.Yaw << " "
-		<< data.EnableVision << " " << data._n2 << " "
-		<< data._n3 << " " << data._n4;
+		<< data.EnableVision << " " << data.Mode << " "
+		<< data.Home << " " << data._n4;
 	return oss.str();
 }
 
@@ -85,7 +100,7 @@ bool ClassicPWMMsg::Unpack(string &raw)
 	
 	istringstream iss(raw);
 	iss >> data.Throttle >> data.Roll >> data.Pitch >> data.Yaw
-		>> data.EnableVision >> data._n2 >> data._n3 >> data._n4;
+		>> data.EnableVision >> data.Mode >> data.Home >> data._n4;
 	return true;
 }
 

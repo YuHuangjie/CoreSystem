@@ -19,23 +19,25 @@ const std::string TEST_VISION_ADDRESS = "192.168.1.104";
 /*
  * global Input PWM channel
  */
-extern int32_t THROTTLE_IN;
-extern int32_t ROLL_IN;
-extern int32_t PITCH_IN;
-extern int32_t YAW_IN;
-extern int32_t VISION_IN;
+extern const int32_t THROTTLE_CHN;
+extern const int32_t ROLL_CHN;
+extern const int32_t PITCH_CHN;
+extern const int32_t YAW_CHN;
+extern const int32_t VISION_CHN;
+extern const int32_t MODE_CHN;
+extern const int32_t HOME_CHN;
 
 /*
  * global Output PWM channel
  */
-extern int32_t THROTTLE_OUT;
-extern int32_t ROLL_OUT;
-extern int32_t PITCH_OUT;
-extern int32_t YAW_OUT;
-extern int32_t GIMBAL_ROLL_OUT;
-extern int32_t GIMBAL_PITCH_OUT;
-extern int32_t GIMBAL_YAW_OUT;
-extern int32_t GIMBAL_FOCUS_OUT;
+//extern int32_t THROTTLE_OUT;
+//extern int32_t ROLL_OUT;
+//extern int32_t PITCH_OUT;
+//extern int32_t YAW_OUT;
+extern const int32_t GIMBAL_ROLL_OUT;
+extern const int32_t GIMBAL_PITCH_OUT;
+extern const int32_t GIMBAL_YAW_OUT;
+extern const int32_t GIMBAL_FOCUS_OUT;
 
 END_NAMESPACE
 

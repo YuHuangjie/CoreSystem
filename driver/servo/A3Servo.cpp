@@ -13,10 +13,12 @@ void A3Servo::SetTick(int32_t channel, float tick)
 		return;
 	}
 	
-	if (channel != THROTTLE_OUT &&
-		channel != ROLL_OUT && 
-		channel != PITCH_OUT && 
-		channel != YAW_OUT) {
+	if (channel != THROTTLE_CHN &&
+		channel != ROLL_CHN && 
+		channel != PITCH_CHN && 
+		channel != YAW_CHN &&
+		channel != MODE_CHN &&
+		channel != HOME_CHN) {
 		return;
 	}
 
