@@ -18,6 +18,8 @@ public:
 	virtual AngVelocity GetAngVelocity(void) = 0;
 	virtual Attitude GetAttitude(void) = 0;
 	virtual Magnet GetMagnet(void) = 0;
+	virtual GPS GetGPS(void) = 0;
+	virtual Battery GetBattery(void) = 0;
 	
 	/*
 	 * Run() method must be called before making any requirements

@@ -9,6 +9,7 @@
 #include "Message.h"
 #include "StdMessage.h"
 #include <iostream>
+#include <chrono>
 
 BEGIN_NAMESPACE
 
@@ -29,28 +30,33 @@ bool ServerThread::Run(void)
 	int32_t ret;
 
 	/* Bind a socket and listen for incoming connections */
-	ret = net.Bind(address, port);
-	if (ret == false) {
-		cout << "SERVER: bind fail" << endl;
-		return false;
+	/* Note: wire disconnection will lead to binding failuer */
+	while (!net.Bind(address, port)) {
+		cerr << "SERVER: bind fail" << endl;
+		net.Close();
+		this_thread::sleep_for(chrono::seconds(10));
 	}
 
 	ret = net.Listen();
 	if (ret == false) {
-		cout << "SERVER: listen fail" << endl;
+		cerr << "SERVER: listen fail" << endl;
+		net.Close();
 		return false;
 	}
+	
+	cerr << "SERVER: listening" << endl;
 
 	/* Accept incoming connection */
 	ret = net.Accept(peer);
 	if (ret == false) {
-		cout << "SERVER: accept fail" << endl;
+		cerr << "SERVER: accept fail" << endl;
+		net.Close();
 		return false;
 	}
 
 	SetOnline(true);
 	
-	cout << "SERVER: accepted" << endl;
+	clog << "SERVER: accepted" << endl;
 
 	/* receive messages sent by client, and push them to global message vector */
 	MessageHeader header;
@@ -59,9 +65,19 @@ bool ServerThread::Run(void)
 	while (online) {
 		/* receive message */
 		ret = peer.ReadMessageHeader(header);
-		if (ret == false) { return false; }
+		if (ret == false) 
+		{
+			cerr << "SERVER: ReadMessageHeader return false" << endl;
+			net.Close();
+			return false; 
+		}
 		ret = SelectMessageReader(header, &data);
-		if (ret == false) { return false; }
+		if (ret == false) 
+		{
+			cerr << "SERVER: SelectMessageReader return false" << endl;
+			net.Close();
+			return false; 
+		}
 
 		/* add this message to global message buffer */
 		msg.header = header;
@@ -72,6 +88,9 @@ bool ServerThread::Run(void)
 
 bool ServerThread::SelectMessageReader(const MessageHeader &head, MessageData **data)
 {
+	/* log */
+	cout << "SERVER: Request: " << head.type << endl;
+	
 	switch (head.type) {
 		
 	case REQUEST_GET_RC:

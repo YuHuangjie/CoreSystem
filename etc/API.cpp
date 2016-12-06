@@ -1,4 +1,5 @@
 #include "API.h"
+#include <csignal>
 
 BEGIN_NAMESPACE
 	
@@ -31,9 +32,9 @@ mutex gMessageBufferMutex;
 IMUData gIMUBuffer;
 	
 /* global client thread */
-ClientThread clientThread(TEST_VISION_ADDRESS, CORE_PORT);
+ClientThread clientThread(/*TEST_*/VISION_ADDRESS, CORE_PORT);
 /* global server thread */
-ServerThread serverThread(TEST_CORE_ADDRESS, CORE_PORT);
+ServerThread serverThread(/*TEST_*/CORE_ADDRESS, CORE_PORT);
 /* global remote controler reading thread */
 RCThread rcThread;
 /* global IMU reading thread */
@@ -62,6 +63,17 @@ void CheckVisionSwitch(void)
 		gVisionSwitch = true;
 	}
 	
+	if (oldVisionSwitch && !gVisionSwitch) {
+		/* log */
+		cerr << "Vision switch turned off!" << endl;
+		/* debug */
+		cerr << "EnableVision channel: " << gRCBuffer.EnableVision << endl
+			<< "Heartbeat: " << gHeartbeat << endl;
+	}
+	else if (!oldVisionSwitch && gVisionSwitch) {
+		cerr << "Vision switch turned on!" << endl;
+	}
+	
 	/* switch Vision from on to off */
 	if (oldVisionSwitch && !gVisionSwitch) {
 		// clear gimbal buffer
@@ -72,6 +84,9 @@ void CheckVisionSwitch(void)
 
 void Initialize(void)
 {
+	// ignore SIGPIPE which may crash the program when socket peer disconnected
+	signal(SIGPIPE, SIG_IGN);
+	
 	/* Initialzie PWM device */
 	gPWMIO = new Au::NavioPWMIO();
 	gPWMIO->Run();
@@ -192,7 +207,9 @@ void MessageRespondUpdateServo(const ClassicPWMMsg *msg)
 		UpdateServo(msg->data.Throttle,
 			msg->data.Roll,
 			msg->data.Pitch,
-			msg->data.Yaw);
+			msg->data.Yaw,
+			gRCBuffer.Mode,
+			gRCBuffer.Home);
 		reacted = true;
 	}
 	
@@ -213,13 +230,15 @@ void MessageRespondHeartbeat(void)
 	/* do nothing to respond heartbeat message */
 }
 
-void UpdateServo(float throttle, float roll, float pitch, float yaw)
+void UpdateServo(float throttle, float roll, float pitch, float yaw, float mode, float home)
 {
 	// update servo buffer
 	gServoBuffer.Throttle = throttle;
 	gServoBuffer.Roll = roll;
 	gServoBuffer.Pitch = pitch;
 	gServoBuffer.Yaw = yaw;
+	gServoBuffer.Mode = mode;
+	gServoBuffer.Home = home;
 }
 
 void UpdateRC2Servo(void)
@@ -230,7 +249,9 @@ void UpdateRC2Servo(void)
 			gRCBuffer.Throttle,
 			gRCBuffer.Roll,
 			gRCBuffer.Pitch,
-			gRCBuffer.Yaw);
+			gRCBuffer.Yaw,
+			gRCBuffer.Mode,
+			gRCBuffer.Home);
 	}
 }
 

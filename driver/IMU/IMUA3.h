@@ -37,6 +37,7 @@ public:
 	AngVelocity GetAngVelocity(void);
 	Magnet GetMagnet(void);
 	Battery GetBattery(void);
+	GPS GetGPS(void);
 	
 	void Run(void);
 
@@ -62,6 +63,7 @@ private:
 	Attitude atti;
 	Magnet mag;
 	Battery battery;
+	GPS gps;
 	
 	friend class PollThread;
 };

@@ -28,7 +28,9 @@ private:
 		const Velocity &vel,
 		const AngVelocity &angVel,
 		const Attitude &atti,
-		const Magnet &mag);
+		const Magnet &mag,
+		const Battery &bat,
+		const GPS &gps);
 };
 
 END_NAMESPACE

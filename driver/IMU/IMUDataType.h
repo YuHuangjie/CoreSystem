@@ -55,6 +55,20 @@ typedef struct Battery
 	uint8_t battery;
 } Battery;
 
+typedef struct GPS
+{
+	uint32_t date;	// not used
+	uint32_t time;	// not used
+	double longitude;
+	double latitude;
+	double altitude;
+	float height;
+	float vel_N;	// not used
+	float vel_E;	// not used
+	float vel_D;	// not used
+	uint8_t health;
+} GPS;
+
 typedef struct IMUData
 {
 	Acceleration accel;
@@ -62,6 +76,8 @@ typedef struct IMUData
 	AngVelocity angVel;
 	Attitude atti;
 	Magnet mag;
+	Battery bat;
+	GPS gps;
 } IMUData;
 
 END_NAMESPACE

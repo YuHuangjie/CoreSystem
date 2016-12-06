@@ -37,7 +37,7 @@ void MessageRespondUpdateGimbal(const ClassicGimbalMsg *msg);
 void MessageRespondHeartbeat(void);
 void MessageRespondUpdateServo(const ClassicPWMMsg *msg);
 void CheckVisionSwitch(void);
-void UpdateServo(float throttle, float roll, float pitch, float yaw);
+void UpdateServo(float throttle, float roll, float pitch, float yaw, float mode, float home);
 void UpdateRC2Servo(void);
 
 /*

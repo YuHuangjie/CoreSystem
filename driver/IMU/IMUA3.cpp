@@ -149,5 +149,27 @@ Magnet IMUA3::GetMagnet(void)
 	ret.mz = mag.z;
 	return ret;
 }
+
+GPS IMUA3::GetGPS(void)
+{
+	GPS ret;
+	PositionData gps = flight->getPosition();
+//	GPSData gpsDetail = (api->getBroadcastData()).gps;
+//	ret.date = gpsDetail.date;
+//	ret.time = gpsDetail.time;
+//	ret.longitude = gpsDetail.longitude;
+//	ret.latitude = gpsDetail.latitude;
+//	ret.altitude = gpsDetail.Hmsl;
+//	ret.vel_N = gpsDetail.velocityNorth;
+//	ret.vel_E = gpsDetail.velocityEast;
+//	ret.vel_D = gpsDetail.velocityGround;
+	ret.longitude = gps.longitude * 180 / PI;
+	ret.latitude = gps.latitude * 180 / PI;
+	ret.altitude = gps.altitude;
+	
+	ret.height = gps.height;
+	ret.health = gps.health;
+	return ret;
+}
 	
 END_NAMESPACE
